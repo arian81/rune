@@ -17,6 +17,7 @@ type Hover = Rc<dyn Fn(El, Duration, Duration, bool) -> El>;
 
 /// The resize grip's width, straddling nothing: it sits inside the pane's edge.
 const GRIP: f32 = 6.0;
+const CARD_BORDER: f32 = 1.0;
 
 struct Pane {
     state: PaneState,
@@ -241,7 +242,8 @@ impl SplitView {
         let c = &k.c;
         let t = self.toggle;
         let side = t.side();
-        let top = if self.in_panel { self.frame } else { 0.0 };
+        // In the panel, the toolbar sits under the main pane's border.
+        let top = if self.in_panel { self.frame + CARD_BORDER } else { 0.0 };
         let sidebar_state = self.sidebar.as_ref().map(|p| p.state);
         let sidebar_open = sidebar_state.is_some_and(|s| s.is_open());
         let inspector_state = self.inspector.as_ref().map(|p| p.state);
@@ -331,10 +333,11 @@ impl SplitView {
         let toolbar = self
             .toolbar
             .unwrap_or_default()
-            .padding(if sidebar_open { 12.0 } else if self.in_panel { (past_toggle - self.frame).max(12.0) } else { past_toggle })
+            .padding(if sidebar_open { 12.0 } else if self.in_panel { (past_toggle - self.frame - CARD_BORDER).max(12.0) } else { past_toggle })
             .build(k)
             .motion(spring);
         let (toolbar, above) = if self.in_panel { (Some(toolbar), None) } else { (None, Some(toolbar)) };
+        // The content clips inside the border, so a child with a fill can't paint over it.
         let card = col()
             .key("main-pane")
             .role("main")
@@ -346,11 +349,18 @@ impl SplitView {
             .mb(self.frame)
             .fill(c.bg_base)
             .radius(k.radius.lg)
-            .border(1.0, c.border_muted)
-            .clip_rounded(k.radius.lg)
+            .border(CARD_BORDER, c.border_muted)
+            .border_layout()
             .motion(spring)
-            .children(toolbar)
-            .child(self.main.grow(1.0).min_h(0.0));
+            .child(
+                col()
+                    .w_full()
+                    .grow(1.0)
+                    .min_h(0.0)
+                    .clip_rounded((k.radius.lg - CARD_BORDER).max(0.0))
+                    .children(toolbar)
+                    .child(self.main.grow(1.0).min_h(0.0)),
+            );
         let mut below = row().key("main-row").w_full().grow(1.0).min_h(0.0).motion(spring).child(card);
         if let Some(mut p) = self.inspector {
             if let Some(c) = p.clear.take() {

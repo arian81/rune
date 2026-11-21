@@ -119,7 +119,7 @@ fn the_main_pane_is_framed_and_the_toolbar_sits_inside_it() {
     assert_eq!(card[1] + card[3], 592.0, "and from the bottom");
     assert_eq!(card[0] + card[2], inspector[0], "up to the inspector");
     let toolbar = find(&rt, "toolbar").rect;
-    assert_eq!((toolbar[1], toolbar[3]), (8.0, 48.0), "the toolbar is the pane's top 48 points");
+    assert_eq!((toolbar[1], toolbar[3]), (9.0, 48.0), "the toolbar is the 48 points under the pane's top border");
     let (x, y) = (500.0, 4.0);
     rt.pointer_down(x, y);
     assert_eq!(rt.take_titlebar_action(), Some(rune::TitlebarAction::Drag), "the strip above the pane drags the window");
@@ -186,7 +186,7 @@ fn the_toggle_sits_at_the_headers_end_and_floats_past_the_lights_when_closed() {
     rt.set_titlebar_inset(inset);
     rt.frame(1.0 / 60.0);
     let t = find(&rt, "sidebar-toggle").rect;
-    assert_eq!((t[0], t[1], t[2]), (276.0 - 10.0 - 28.0, 8.0 + 10.0, 28.0), "at the header's end, on the toolbar's centre line");
+    assert_eq!((t[0], t[1], t[2]), (276.0 - 10.0 - 28.0, 8.0 + 1.0 + 10.0, 28.0), "at the header's end, on the toolbar's centre line");
     assert_eq!(find(&rt, "toolbar").rect[1] + 24.0, t[1] + 14.0);
     rt.set_system_reduced_motion(true);
     rt.update(|s, _| s.sidebar.set_open(false));

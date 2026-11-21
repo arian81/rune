@@ -26,6 +26,7 @@ mod scroll_bar_fade;
 mod segmented;
 mod select_keyboard;
 mod shell;
+mod shell_border;
 mod shell_desktop;
 mod shortcut_recorder;
 mod switch_snap;
