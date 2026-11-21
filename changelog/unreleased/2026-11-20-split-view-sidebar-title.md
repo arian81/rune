@@ -1,0 +1,1 @@
+- **`SplitView::sidebar_title` puts an app's name or logo in the sidebar's title band.** It sits after the traffic lights and the toggle (before the toggle's slot with `SidebarToggle::in_header`), centred in the band, and fades and clips with the sidebar's contents as the sidebar opens and closes.

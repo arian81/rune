@@ -140,6 +140,7 @@ pub struct SplitView {
     inset: f32,
     show_toggle: bool,
     toggle: SidebarToggle,
+    title: Option<El>,
     frame: f32,
     in_panel: bool,
     padding: [f32; 2],
@@ -158,6 +159,7 @@ impl SplitView {
             inset: 0.0,
             show_toggle: true,
             toggle: SidebarToggle::new(),
+            title: None,
             frame: 8.0,
             in_panel: false,
             padding: [0.0; 2],
@@ -196,6 +198,14 @@ impl SplitView {
     /// Where the sidebar's toggle button sits and how it looks.
     pub fn sidebar_toggle(mut self, t: SidebarToggle) -> Self {
         self.toggle = t;
+        self
+    }
+    /// Puts `title`, such as the app's name or logo, in the sidebar's title bar row, after the
+    /// traffic lights and the toggle (before the toggle's slot with
+    /// [`SidebarToggle::in_header`]). It is part of the sidebar's contents: it fades and clips
+    /// with them as the sidebar opens and closes.
+    pub fn sidebar_title(mut self, title: El) -> Self {
+        self.title = Some(title);
         self
     }
     /// The window background showing around the main pane where no pane borders it (default
@@ -253,6 +263,7 @@ impl SplitView {
         let toggle = self.show_toggle && self.sidebar.is_some();
         let past_toggle = if toggle { lights + side + t.gap } else { lights };
         let peek = self.peek;
+        let title = self.title;
         let d = Dock { k, spring, motion: self.motion, reduced: self.reduced };
 
         let mut overlay = None;
@@ -323,7 +334,8 @@ impl SplitView {
                 .pt(top)
                 .center_y()
                 .window_drag()
-                .child(el().key("sidebar-titlebar-clear").w((clear - self.padding[0]).max(0.0)).motion(spring).a11y_hidden());
+                .child(el().key("sidebar-titlebar-clear").w((clear - self.padding[0]).max(0.0)).motion(spring).a11y_hidden())
+                .children(title);
             if toggle && t.in_header {
                 band = band.child(el().key("sidebar-spacer").grow(1.0).a11y_hidden()).child(el().key("sidebar-toggle-slot").w(side).ml(8.0).a11y_hidden());
             }
